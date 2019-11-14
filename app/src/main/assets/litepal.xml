@@ -3,8 +3,8 @@
     <version value="1" />
 
     <list>
-        <mapping class="com.example.weather10.android.db.Province" />
-        <mapping class="com.example.weather10.android.db.City" />
-        <mapping class="com.example.weather10..android.db.County" />
+        <mapping class="com.example.weather10.db.Province" />
+        <mapping class="com.example.weather10.db.City" />
+        <mapping class="com.example.weather10.db.County" />
     </list>
 </litepal>
