@@ -5,6 +5,8 @@ import android.text.TextUtils;
 import com.example.weather10.db.City;
 import com.example.weather10.db.County;
 import com.example.weather10.db.Province;
+import com.example.weather10.gson.Weather;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -68,7 +70,7 @@ public class Utility {
                     JSONObject countyObject = allCounties.getJSONObject(i);
                     County county = new County();
                     county.setCountyName(countyObject.getString("name"));
-                    county.setWeatherId(countyObject.getInt("id"));
+                    county.setWeatherId(countyObject.getString("weather_id"));
                     county.setCityId(cityId);
                     county.save();
                 }
@@ -79,5 +81,22 @@ public class Utility {
         }
         return false;
     }
+
+    /**
+     * 将返回的JSON数据解析成Weather实体类
+     */
+    public static Weather handleWeatherResponse(String response){
+        System.out.println("xxxxxxxx"+response);
+        try{
+            JSONObject jsonObject = new JSONObject(response);
+            JSONArray jsonArray = jsonObject.getJSONArray("HeWeather");
+            String weatherContent = jsonArray.getJSONObject(0).toString();
+            return new Gson().fromJson(weatherContent,Weather.class);
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
 }
