@@ -8,6 +8,8 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.media.Image;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -196,6 +198,33 @@ public class WeatherActivity extends AppCompatActivity {
         String updateTime = weather.basic.update.updateTime.split(" ")[1];
         String degree = weather.now.temperature + "℃";
         String weatherInfo = weather.now.more.info;
+
+
+        int res = 0;
+
+        if(weatherInfo.equals("晴")){
+            res = R.drawable.qing;
+        } else if(weatherInfo.equals("小雨")){
+            res = R.drawable.xiaoyu;
+        }else if(weatherInfo.equals("中雨")){
+            res = R.drawable.zhongyu;
+        } else if(weatherInfo.equals("大雨")){
+            res = R.drawable.dayu;
+        }else if(weatherInfo.equals("雷阵雨")){
+            res = R.drawable.leizhenyu;
+        }else if(weatherInfo.equals("阴")){
+            res = R.drawable.yin;
+        }else if(weatherInfo.equals("多云")){
+            res = R.drawable.duoyun;
+        }else if(weatherInfo.equals("阵雨")) {
+            res = R.drawable.zhenyu;
+        }
+
+
+        if (res != 0) {
+            ((ImageView)findViewById(R.id.weather_image)).setImageResource(res);
+        }
+
         titleCity.setText(cityName);
         titleUpdateTime.setText(updateTime);
         degreeText.setText(degree);
@@ -212,6 +241,7 @@ public class WeatherActivity extends AppCompatActivity {
             maxText.setText(forecast.temperature.max);
             minText.setText(forecast.temperature.min);
             forecastLayout.addView(view);
+
         }
         if (weather.aqi != null) {
             aqiText.setText(weather.aqi.city.aqi);
@@ -226,6 +256,13 @@ public class WeatherActivity extends AppCompatActivity {
         weatherLayout.setVisibility(View.VISIBLE);
         Intent intent = new Intent(this, AutoUpdateService.class);
         startService(intent);
+
+        
+//        intent.setAction(Intent.ACTION_SENDTO);
+//        intent.setData(Uri.parse("smsto:10086"));
+//        intent.putExtra("sms_body","degree");
+//        startActivity(intent);
+
     }
 
 
