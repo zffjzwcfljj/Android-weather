@@ -5,6 +5,10 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -12,7 +16,11 @@ import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
+import android.telephony.SmsManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.textclassifier.TextLinks;
@@ -21,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -31,6 +40,11 @@ import com.example.weather10.util.HttpUtil;
 import com.example.weather10.util.Utility;
 
 import java.io.IOException;
+import java.sql.SQLOutput;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -55,6 +69,11 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView sportText;
     private ImageView bingPicImg;
 
+    private PendingIntent pendingIntent;
+    private AlarmManager alarmManager;
+    public String str;
+    public boolean flag = true;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +85,7 @@ public class WeatherActivity extends AppCompatActivity {
                 getWindow().setStatusBarColor(Color.TRANSPARENT);
         }
         setContentView(R.layout.activity_weather);
+        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
         bingPicImg = (ImageView) findViewById(R.id.bing_pic_img);
         weatherLayout = (ScrollView) findViewById(R.id.weather_layout);
@@ -116,8 +136,41 @@ public class WeatherActivity extends AppCompatActivity {
                 drawerLayout.openDrawer(GravityCompat.START);
             }
         });
-    }
 
+
+//        Intent intent = new Intent("ndroid.intent.action.MY_BROADCAST");
+//        intent.putExtra("broadcastmsg","今日天气情况");
+//        PendingIntent sender= PendingIntent.getBroadcast(this, 0, intent, 0);
+//        long firstime = SystemClock.elapsedRealtime();
+//        AlarmManager am=(AlarmManager)getSystemService(ALARM_SERVICE);
+//        am.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstime, 5 * 1000, sender);
+//        sendBroadcast(intent);
+
+       final Intent intent =new Intent(this, AlarmReceiver.class);
+        PendingIntent sender= PendingIntent.getBroadcast(this, 0, intent, 0);
+        long firstime = SystemClock.elapsedRealtime();
+        AlarmManager am=(AlarmManager)getSystemService(ALARM_SERVICE);
+        //24小时一个周期，不停的发送广播
+        am.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstime, 1 * 60 * 60 * 24 * 1000, sender);
+
+
+
+        final Handler handler=new Handler();
+        Runnable runnable=new Runnable() {
+            @Override
+            public void run() {
+                intent.setAction(Intent.ACTION_SENDTO);
+                intent.setData(Uri.parse("smsto:10086"));
+                intent.putExtra("sms_body","str");
+                System.out.println(str);
+                //要做的事情
+                handler.postDelayed(this, 1 * 60 * 60 * 24 * 1000);
+            }
+        };
+
+
+
+    }
 
 
     /**
@@ -241,7 +294,11 @@ public class WeatherActivity extends AppCompatActivity {
             maxText.setText(forecast.temperature.max);
             minText.setText(forecast.temperature.min);
             forecastLayout.addView(view);
-
+            if(flag){
+                str = "今日天气是" + forecast.more.info;
+                flag = false;
+            }
+            Toast.makeText(getApplicationContext(), "str", Toast.LENGTH_LONG).show();
         }
         if (weather.aqi != null) {
             aqiText.setText(weather.aqi.city.aqi);
@@ -257,14 +314,8 @@ public class WeatherActivity extends AppCompatActivity {
         Intent intent = new Intent(this, AutoUpdateService.class);
         startService(intent);
 
-        
-//        intent.setAction(Intent.ACTION_SENDTO);
-//        intent.setData(Uri.parse("smsto:10086"));
-//        intent.putExtra("sms_body","degree");
-//        startActivity(intent);
 
     }
-
 
 
 }

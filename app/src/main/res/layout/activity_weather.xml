@@ -7,6 +7,7 @@
     android:background="@color/colorPrimary"
     tools:context=".WeatherActivity">
 
+
     <ImageView
         android:id="@+id/bing_pic_img"
         android:layout_width="match_parent"
