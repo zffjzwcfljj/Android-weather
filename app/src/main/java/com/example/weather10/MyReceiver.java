@@ -11,5 +11,6 @@ public class MyReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         String strMsg = intent.getStringExtra("broadcastmsg");
         Toast.makeText(context,strMsg,Toast.LENGTH_LONG).show();
+        System.out.println("XXXXXXXXX");
     }
 }

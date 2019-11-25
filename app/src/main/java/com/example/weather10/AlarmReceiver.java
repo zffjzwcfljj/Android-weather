@@ -11,8 +11,11 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         @Override
     public void onReceive(Context context, Intent intent) {
-        Toast.makeText(context, "今日天气情况", Toast.LENGTH_LONG).show();
+       // Toast.makeText(context,str, Toast.LENGTH_LONG).show();
 
     }
 
+//    public AlarmReceiver(String str){
+//        this.str = str;
+//    }
 }

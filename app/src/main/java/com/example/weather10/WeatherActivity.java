@@ -10,6 +10,7 @@ import android.app.PendingIntent;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.media.Image;
@@ -138,35 +139,47 @@ public class WeatherActivity extends AppCompatActivity {
         });
 
 
-//        Intent intent = new Intent("ndroid.intent.action.MY_BROADCAST");
-//        intent.putExtra("broadcastmsg","今日天气情况");
-//        PendingIntent sender= PendingIntent.getBroadcast(this, 0, intent, 0);
-//        long firstime = SystemClock.elapsedRealtime();
-//        AlarmManager am=(AlarmManager)getSystemService(ALARM_SERVICE);
-//        am.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstime, 5 * 1000, sender);
-//        sendBroadcast(intent);
+        MyReceiver myReceiver = new MyReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("repeating");
+//        filter.addAction(Intent.ACTION_SENDTO);
+        registerReceiver(myReceiver,filter);
 
-       final Intent intent =new Intent(this, AlarmReceiver.class);
+        Intent intent = new Intent();
+        intent.setAction("repeating");
+        intent.putExtra("broadcastmsg",str);
+//        intent.setAction(Intent.ACTION_SENDTO);
+//        intent.setData(Uri.parse("smsto:10086"));
+//        intent.putExtra("sms_body",str);
+//        System.out.println("XXXXXXX"+str);
         PendingIntent sender= PendingIntent.getBroadcast(this, 0, intent, 0);
         long firstime = SystemClock.elapsedRealtime();
         AlarmManager am=(AlarmManager)getSystemService(ALARM_SERVICE);
         //24小时一个周期，不停的发送广播
         am.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstime, 1 * 60 * 60 * 24 * 1000, sender);
+        sendBroadcast(intent);
+
+
+//       final Intent intent =new Intent(this, AlarmReceiver.class);
+//        PendingIntent sender= PendingIntent.getBroadcast(this, 0, intent, 0);
+//        long firstime = SystemClock.elapsedRealtime();
+//        AlarmManager am=(AlarmManager)getSystemService(ALARM_SERVICE);
+//        //24小时一个周期，不停的发送广播
+//        am.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstime, 1 * 60 * 60 * 24 * 1000, sender);
 
 
 
-        final Handler handler=new Handler();
-        Runnable runnable=new Runnable() {
-            @Override
-            public void run() {
-                intent.setAction(Intent.ACTION_SENDTO);
-                intent.setData(Uri.parse("smsto:10086"));
-                intent.putExtra("sms_body","str");
-                System.out.println(str);
-                //要做的事情
-                handler.postDelayed(this, 1 * 60 * 60 * 24 * 1000);
-            }
-        };
+//        final Handler handler=new Handler();
+//        Runnable runnable=new Runnable() {
+//            @Override
+//            public void run() {
+//                intent.setAction(Intent.ACTION_SENDTO);
+//                intent.setData(Uri.parse("smsto:10086"));
+//                intent.putExtra("sms_body",str);
+//                //要做的事情
+//                handler.postDelayed(this, 1 * 60 * 60 * 24 * 1000);
+//            }
+//        };
 
 
 
@@ -295,10 +308,9 @@ public class WeatherActivity extends AppCompatActivity {
             minText.setText(forecast.temperature.min);
             forecastLayout.addView(view);
             if(flag){
-                str = "今日天气是" + forecast.more.info;
+                str = "今日天气是" + weatherInfo + " 温度是" + degree;
                 flag = false;
             }
-            Toast.makeText(getApplicationContext(), "str", Toast.LENGTH_LONG).show();
         }
         if (weather.aqi != null) {
             aqiText.setText(weather.aqi.city.aqi);
@@ -316,6 +328,5 @@ public class WeatherActivity extends AppCompatActivity {
 
 
     }
-
 
 }
