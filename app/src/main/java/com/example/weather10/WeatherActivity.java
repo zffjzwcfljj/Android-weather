@@ -1,10 +1,12 @@
 package com.example.weather10;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.Manifest;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.TimePickerDialog;
@@ -72,7 +74,7 @@ public class WeatherActivity extends AppCompatActivity {
 
     private PendingIntent pendingIntent;
     private AlarmManager alarmManager;
-    public String str;
+    public String str,str1 = "!",wendu;
     public boolean flag = true;
 
     @Override
@@ -87,6 +89,7 @@ public class WeatherActivity extends AppCompatActivity {
         }
         setContentView(R.layout.activity_weather);
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.SEND_SMS} , 1);
 
         bingPicImg = (ImageView) findViewById(R.id.bing_pic_img);
         weatherLayout = (ScrollView) findViewById(R.id.weather_layout);
@@ -139,48 +142,22 @@ public class WeatherActivity extends AppCompatActivity {
         });
 
 
-        MyReceiver myReceiver = new MyReceiver();
-        IntentFilter filter = new IntentFilter();
-        filter.addAction("repeating");
-//        filter.addAction(Intent.ACTION_SENDTO);
-        registerReceiver(myReceiver,filter);
-
-        Intent intent = new Intent();
-        intent.setAction("repeating");
-        intent.putExtra("broadcastmsg",str);
-//        intent.setAction(Intent.ACTION_SENDTO);
-//        intent.setData(Uri.parse("smsto:10086"));
-//        intent.putExtra("sms_body",str);
-//        System.out.println("XXXXXXX"+str);
-        PendingIntent sender= PendingIntent.getBroadcast(this, 0, intent, 0);
-        long firstime = SystemClock.elapsedRealtime();
-        AlarmManager am=(AlarmManager)getSystemService(ALARM_SERVICE);
-        //24小时一个周期，不停的发送广播
-        am.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstime, 1 * 60 * 60 * 24 * 1000, sender);
-        sendBroadcast(intent);
+//        MyReceiver myReceiver = new MyReceiver();
+//        IntentFilter filter = new IntentFilter();
+//        filter.addAction("repeating");
+//        registerReceiver(myReceiver,filter);
+//
+//        Intent intent = new Intent();
+//        intent.setAction("repeating");
+//        intent.putExtra("broadcastmsg",str);
 
 
-//       final Intent intent =new Intent(this, AlarmReceiver.class);
 //        PendingIntent sender= PendingIntent.getBroadcast(this, 0, intent, 0);
 //        long firstime = SystemClock.elapsedRealtime();
 //        AlarmManager am=(AlarmManager)getSystemService(ALARM_SERVICE);
 //        //24小时一个周期，不停的发送广播
 //        am.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP, firstime, 1 * 60 * 60 * 24 * 1000, sender);
-
-
-
-//        final Handler handler=new Handler();
-//        Runnable runnable=new Runnable() {
-//            @Override
-//            public void run() {
-//                intent.setAction(Intent.ACTION_SENDTO);
-//                intent.setData(Uri.parse("smsto:10086"));
-//                intent.putExtra("sms_body",str);
-//                //要做的事情
-//                handler.postDelayed(this, 1 * 60 * 60 * 24 * 1000);
-//            }
-//        };
-
+//        sendBroadcast(intent);
 
 
     }
@@ -263,6 +240,7 @@ public class WeatherActivity extends AppCompatActivity {
         String cityName = weather.basic.cityName;
         String updateTime = weather.basic.update.updateTime.split(" ")[1];
         String degree = weather.now.temperature + "℃";
+        wendu = weather.now.temperature;
         String weatherInfo = weather.now.more.info;
 
 
@@ -307,10 +285,19 @@ public class WeatherActivity extends AppCompatActivity {
             maxText.setText(forecast.temperature.max);
             minText.setText(forecast.temperature.min);
             forecastLayout.addView(view);
-            if(flag){
-                str = "今日天气是" + weatherInfo + " 温度是" + degree;
-                flag = false;
-            }
+//            if(flag){
+//                str = "今日天气是" + weatherInfo + " 温度是" + degree;
+//                if (Integer.parseInt(wendu) <= 0)
+//                    str1 = "气温零下，注意保暖";
+//                if (weatherInfo.equals("小雨") || weatherInfo.equals("中雨") || weatherInfo.equals("大雨"))
+//                    str1 = "今日下雨，出门记得带伞";
+//                if (weatherInfo.equals("雷阵雨"))
+//                    str1 = "今日有雷阵雨，出门别忘带伞哦~";
+//                if (weatherInfo.equals("晴"))
+//                    str1 = "今日有太阳，出门记得带太阳伞哦~";
+//                str = str + " "+ str1;
+//                flag = false;
+//            }
         }
         if (weather.aqi != null) {
             aqiText.setText(weather.aqi.city.aqi);
@@ -325,7 +312,6 @@ public class WeatherActivity extends AppCompatActivity {
         weatherLayout.setVisibility(View.VISIBLE);
         Intent intent = new Intent(this, AutoUpdateService.class);
         startService(intent);
-
 
     }
 
